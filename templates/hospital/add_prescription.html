@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4>Add Prescription</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Appointment Details:</h5>
+                    <p><strong>Patient:</strong> {{ appointment.patient.user.username }}</p>
+                    <p><strong>Date & Time:</strong> {{ appointment.date }} at {{ appointment.time_slot }}</p>
+                </div>
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="details" class="form-label">Prescription Details / Notes</label>
+                        <textarea class="form-control" id="details" name="details" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">Save Prescription</button>
+                    <a href="{% url 'doctor_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mt-4">
+    <h2>Patient Dashboard</h2>
+    <hr>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body bg-light">
+            <h5 class="card-title">Search for Doctors</h5>
+            <form method="get" action="{% url 'patient_dashboard' %}" class="d-flex w-50">
+                <input class="form-control me-2" type="search" name="q" placeholder="Search by name or specialization"
+                    value="{{ query|default:'' }}">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Available Doctors -->
+    <h4 class="mb-3">Our Doctors</h4>
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        {% for doc in doctors %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                {% if doc.photo %}
+                <img src="{{ doc.photo.url }}" class="card-img-top" alt="{{ doc.name }}"
+                    style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="bg-secondary text-white text-center d-flex align-items-center justify-content-center"
+                    style="height: 200px;">
+                    <i class="fas fa-user-md fa-4x"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">Dr. {{ doc.name }}</h5>
+                    <p class="card-text text-muted mb-1"><i class="fas fa-stethoscope"></i> {{ doc.specialization }}</p>
+                    <p class="card-text mb-1"><i class="fas fa-graduation-cap"></i> {{ doc.qualification }}</p>
+                    <p class="card-text mb-3"><i class="fas fa-money-bill-wave"></i> Fee: ${{ doc.fee }}</p>
+                    <a href="{% url 'book_appointment' doc.id %}" class="btn btn-success w-100">Book Appointment</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p>No doctors found matching your criteria.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Appointment History -->
+    <h4>My Appointments</h4>
+    {% if appointments %}
+    <div class="table-responsive bg-white shadow-sm p-3 rounded">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Doctor</th>
+                    <th>Date</th>
+                    <th>Time Slot</th>
+                    <th>Status</th>
+                    <th>Attendance</th>
+                    <th>Prescription</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in appointments %}
+                <tr>
+                    <td>Dr. {{ appt.doctor.name }}</td>
+                    <td>{{ appt.date }}</td>
+                    <td>{{ appt.time_slot }}</td>
+                    <td>
+                        {% if appt.status == 'Pending' %}
+                        <span class="badge bg-warning text-dark">{{ appt.status }}</span>
+                        {% elif appt.status == 'Confirmed' %}
+                        <span class="badge bg-success">{{ appt.status }}</span>
+                        {% elif appt.status == 'Cancelled' %}
+                        <span class="badge bg-danger">{{ appt.status }}</span>
+                        {% else %}
+                        <span class="badge bg-info">{{ appt.status }}</span>
+                        {% endif %}
+                        {% if not appt.is_paid and appt.status == 'Pending' %}
+                        <a href="{% url 'confirm_payment' appt.id %}"
+                            class="badge bg-secondary ms-1 text-decoration-none">Pay Now</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if appt.attendance == 'Attended' %}
+                        <span class="badge bg-success">Attended</span>
+                        {% elif appt.attendance == 'Missed' %}
+                        <span class="badge bg-danger">Missed</span>
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if appt.prescription %}
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                            data-bs-target="#prescriptionModal{{ appt.id }}">View</button>
+
+                        <!-- Prescription Modal -->
+                        <div class="modal fade" id="prescriptionModal{{ appt.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Prescription Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Doctor:</strong> Dr. {{ appt.doctor.name }}</p>
+                                        <p><strong>Date:</strong> {{ appt.prescription.date_prescribed|date:"M d, Y" }}
+                                        </p>
+                                        <hr>
+                                        <p>{{ appt.prescription.details|linebreaks }}</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <span class="text-muted">Not Available</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">You have no appointment history.</div>
+    {% endif %}
+
+</div>
+{% endblock %}

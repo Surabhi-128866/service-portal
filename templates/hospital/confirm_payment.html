@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white text-center">
+                <h4><i class="fas fa-credit-card"></i> Payment Confirmation</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <h5 class="text-muted">Total Amount Due</h5>
+                    <h2 class="display-4 text-success">${{ appointment.doctor.fee }}</h2>
+                </div>
+
+                <h6 class="border-bottom pb-2">Appointment Details</h6>
+                <p><strong>Doctor:</strong> Dr. {{ appointment.doctor.name }} ({{ appointment.doctor.specialization }})
+                </p>
+                <p><strong>Date:</strong> {{ appointment.date }}</p>
+                <p><strong>Time:</strong> {{ appointment.time_slot }}</p>
+
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-info-circle"></i> This is a dummy payment gateway. Confirming will simulate a
+                    successful transaction and confirm your booking.
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Confirm Dummy Payment</button>
+                        <a href="{% url 'patient_dashboard' %}" class="btn btn-secondary">Pay Later / Go Back</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
